@@ -209,6 +209,9 @@ export default function Index() {
           </Button>
         </div>
         <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-4 left-0 right-0 overflow-hidden pointer-events-none">
+          <Icon name="Car" size={48} className="text-white/30 animate-drive" />
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-12">
@@ -449,19 +452,76 @@ export default function Index() {
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 py-8">
-        {selectedArticle ? (
-          renderArticleView(selectedArticle)
-        ) : (
-          <>
-            {activeSection === 'home' && renderHome()}
-            {activeSection === 'articles' && renderArticles()}
-            {activeSection === 'lifehacks' && renderArticles('Лайфхаки')}
-            {activeSection === 'repair' && renderArticles('Ремонт')}
-            {activeSection === 'contacts' && renderContacts()}
-          </>
-        )}
-      </main>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-8">
+          <main className="flex-1">
+            {selectedArticle ? (
+              renderArticleView(selectedArticle)
+            ) : (
+              <>
+                {activeSection === 'home' && renderHome()}
+                {activeSection === 'articles' && renderArticles()}
+                {activeSection === 'lifehacks' && renderArticles('Лайфхаки')}
+                {activeSection === 'repair' && renderArticles('Ремонт')}
+                {activeSection === 'contacts' && renderContacts()}
+              </>
+            )}
+          </main>
+
+          <aside className="hidden lg:block w-80 space-y-6">
+            <Card className="sticky top-24">
+              <CardHeader>
+                <CardTitle className="text-lg">Рекламный блок</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg p-6 text-center">
+                  <Icon name="Wrench" size={48} className="mx-auto mb-4 text-primary" />
+                  <h3 className="font-bold mb-2">Автозапчасти</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Оригинальные запчасти для ВАЗ 2101-2107
+                  </p>
+                  <Button className="w-full" variant="outline">
+                    Перейти в каталог
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-lg p-6 text-center">
+                  <Icon name="BookOpen" size={48} className="mx-auto mb-4 text-secondary" />
+                  <h3 className="font-bold mb-2">Руководства</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Полные мануалы по ремонту
+                  </p>
+                  <Button className="w-full" variant="outline">
+                    Скачать PDF
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h3 className="font-bold text-sm">Популярное</h3>
+                  <div className="space-y-2">
+                    <div className="text-sm flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+                      <Icon name="TrendingUp" size={14} />
+                      <span>Замена масла</span>
+                    </div>
+                    <div className="text-sm flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+                      <Icon name="TrendingUp" size={14} />
+                      <span>Регулировка клапанов</span>
+                    </div>
+                    <div className="text-sm flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+                      <Icon name="TrendingUp" size={14} />
+                      <span>Замена подшипников</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </aside>
+        </div>
+      </div>
 
       <footer className="bg-accent text-accent-foreground mt-20">
         <div className="container mx-auto px-4 py-12">
