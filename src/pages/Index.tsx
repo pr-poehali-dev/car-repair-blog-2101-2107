@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 
 interface Comment {
@@ -31,8 +34,16 @@ export default function Index() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [commentText, setCommentText] = useState('');
   const [commentAuthor, setCommentAuthor] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newArticle, setNewArticle] = useState({
+    title: '',
+    excerpt: '',
+    content: '',
+    category: 'Ремонт',
+    image: 'https://cdn.poehali.dev/projects/f652a6d2-4605-4659-9705-2d63dd6160bf/files/f59e38ee-6eb0-41f9-b1b3-d4c55e02ab2c.jpg'
+  });
 
-  const articles: Article[] = [
+  const [articles, setArticles] = useState<Article[]>([
     {
       id: 1,
       title: 'Полная замена тормозных колодок на ВАЗ 2107',
@@ -78,7 +89,7 @@ export default function Index() {
       content: 'Правильная подготовка к зимнему хранению поможет сохранить автомобиль в отличном состоянии до весны.',
       comments: []
     }
-  ];
+  ]);
 
   const handleAddComment = () => {
     if (!selectedArticle || !commentText || !commentAuthor) return;
@@ -93,6 +104,31 @@ export default function Index() {
     selectedArticle.comments.push(newComment);
     setCommentText('');
     setCommentAuthor('');
+  };
+
+  const handleCreateArticle = () => {
+    if (!newArticle.title || !newArticle.excerpt || !newArticle.content) return;
+
+    const article: Article = {
+      id: articles.length + 1,
+      title: newArticle.title,
+      excerpt: newArticle.excerpt,
+      content: newArticle.content,
+      category: newArticle.category,
+      image: newArticle.image,
+      date: new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }),
+      comments: []
+    };
+
+    setArticles([article, ...articles]);
+    setIsDialogOpen(false);
+    setNewArticle({
+      title: '',
+      excerpt: '',
+      content: '',
+      category: 'Ремонт',
+      image: 'https://cdn.poehali.dev/projects/f652a6d2-4605-4659-9705-2d63dd6160bf/files/f59e38ee-6eb0-41f9-b1b3-d4c55e02ab2c.jpg'
+    });
   };
 
   const renderArticleView = (article: Article) => (
@@ -246,7 +282,80 @@ export default function Index() {
         </Card>
       </div>
 
-      <h2 className="text-3xl font-bold mb-6">Популярные статьи</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold">Популярные статьи</h2>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="lg" className="gap-2">
+              <Icon name="Plus" size={20} />
+              Добавить статью
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Создать новую статью</DialogTitle>
+              <DialogDescription>
+                Поделитесь своим опытом ремонта или лайфхаком с сообществом
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Заголовок</Label>
+                <Input
+                  id="title"
+                  placeholder="Например: Замена сцепления на ВАЗ 2106"
+                  value={newArticle.title}
+                  onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Категория</Label>
+                <Select
+                  value={newArticle.category}
+                  onValueChange={(value) => setNewArticle({ ...newArticle, category: value })}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Ремонт">Ремонт</SelectItem>
+                    <SelectItem value="Лайфхаки">Лайфхаки</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="excerpt">Краткое описание</Label>
+                <Textarea
+                  id="excerpt"
+                  placeholder="Краткое описание статьи (1-2 предложения)"
+                  value={newArticle.excerpt}
+                  onChange={(e) => setNewArticle({ ...newArticle, excerpt: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="content">Содержание статьи</Label>
+                <Textarea
+                  id="content"
+                  placeholder="Подробное описание процесса, инструкция или лайфхак"
+                  value={newArticle.content}
+                  onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })}
+                  rows={8}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Отмена
+              </Button>
+              <Button onClick={handleCreateArticle}>
+                <Icon name="Check" size={16} className="mr-2" />
+                Опубликовать
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
       <div className="grid md:grid-cols-2 gap-6">
         {articles.slice(0, 4).map((article) => (
           <Card 
@@ -289,9 +398,82 @@ export default function Index() {
 
     return (
       <div className="animate-fade-in">
-        <h1 className="text-4xl font-bold mb-8">
-          {category || 'Все статьи'}
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold">
+            {category || 'Все статьи'}
+          </h1>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="gap-2">
+                <Icon name="Plus" size={20} />
+                Добавить статью
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Создать новую статью</DialogTitle>
+                <DialogDescription>
+                  Поделитесь своим опытом ремонта или лайфхаком с сообществом
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title-articles">Заголовок</Label>
+                  <Input
+                    id="title-articles"
+                    placeholder="Например: Замена сцепления на ВАЗ 2106"
+                    value={newArticle.title}
+                    onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category-articles">Категория</Label>
+                  <Select
+                    value={newArticle.category}
+                    onValueChange={(value) => setNewArticle({ ...newArticle, category: value })}
+                  >
+                    <SelectTrigger id="category-articles">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ремонт">Ремонт</SelectItem>
+                      <SelectItem value="Лайфхаки">Лайфхаки</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="excerpt-articles">Краткое описание</Label>
+                  <Textarea
+                    id="excerpt-articles"
+                    placeholder="Краткое описание статьи (1-2 предложения)"
+                    value={newArticle.excerpt}
+                    onChange={(e) => setNewArticle({ ...newArticle, excerpt: e.target.value })}
+                    rows={2}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="content-articles">Содержание статьи</Label>
+                  <Textarea
+                    id="content-articles"
+                    placeholder="Подробное описание процесса, инструкция или лайфхак"
+                    value={newArticle.content}
+                    onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })}
+                    rows={8}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Отмена
+                </Button>
+                <Button onClick={handleCreateArticle}>
+                  <Icon name="Check" size={16} className="mr-2" />
+                  Опубликовать
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((article) => (
             <Card 
